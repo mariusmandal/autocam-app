@@ -9,6 +9,7 @@ module.exports = function ArduinoCommunications() {
     const serialports = new SerialPortHelper();
     let duino;
     let window;
+    let didBindDuino = false;
 
     const self = {
         registerWindow: (_window) => {
@@ -51,7 +52,14 @@ module.exports = function ArduinoCommunications() {
         },
 
         bindWhenWeHaveArduino: () => {
-            window.on('ARDUINO.RESTART', duino.restart);
+            if (didBindDuino) {
+                return true;
+            }
+            window.on('arduino.restart', duino.restart);
+            window.on('arduino.gain', duino.gain);
+            window.on('arduino.threshold', duino.threshold);
+            window.on('arduino.total', duino.total);
+            didBindDuino = true;
         },
 
         log: (message, ...args) => {

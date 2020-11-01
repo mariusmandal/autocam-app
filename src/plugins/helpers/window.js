@@ -3,6 +3,7 @@ const EventEmitter = require('events');
 
 module.exports = function(events) {
     return function WindowHelper(window) {
+        events.removeAllListeners();
 
         if (typeof window === 'undefined') {
             console.warn('WindowHelper cannot help non-existent windows.');

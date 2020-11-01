@@ -4,6 +4,7 @@ const EventEmitter = require('events');
 module.exports = function(events) {
     return function SerialPortHelper() {
         let portList = [];
+        events.removeAllListeners();
 
         const self = {
             getPorts: (...args) => {

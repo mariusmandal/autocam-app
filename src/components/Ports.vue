@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import electron from 'electron';
+import ArduinoHelper from "../plugins/vue-arduino-helper"
 
 const all_ports = [];
 
@@ -25,16 +25,16 @@ const portComponent = {
   methods: {
     portSelect: function (selected) {
       console.log("Select port:", selected);
-      electron.ipcRenderer.send('SERIALPORT.SELECTED', selected);
+      ArduinoHelper.send('SERIALPORT.SELECTED', selected);
     },
     focus: function () {
       console.log("time to load at least!");
-      electron.ipcRenderer.send('SERIALPORT.LIST.GET');
+      ArduinoHelper.send('SERIALPORT.LIST.GET');
     },
   },
 };
 
-electron.ipcRenderer.on('PORTS.LIST.DONE', (event, list) => {
+ArduinoHelper.on('PORTS.LIST.DONE', (event, list) => {
   console.log('Serial ports: ', list);
   list.forEach(port => {
     all_ports.push(port.path);

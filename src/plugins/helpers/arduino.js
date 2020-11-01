@@ -10,6 +10,8 @@ module.exports = function(events) {
         const port = new SerialPort(_port, { baudRate });
         const arduino = port.pipe(new Readline({ delimiter: '\n' }));
 
+        const LEVELS = [0, 1, 2, 4, 8, 16];
+
         const self = {
             log: (message, ...args) => {
                 console.log('ArduinoHelper: ', message, ...args);
@@ -26,8 +28,26 @@ module.exports = function(events) {
             },
 
             restart: (event, data) => {
-                port.write('$AC,RESETCPU,\n');
+                self.send('RESETCPU,');
                 self.emit('restarting');
+            },
+
+            threshold: (event, data) => {
+                self.send('THRESHOLD,' + data);
+            },
+
+            gain: (event, data) => {
+                self.send('GAIN,' + LEVELS[data]);
+            },
+
+            total: (event, data) => {
+                self.send('TOTAL,' + data);
+            },
+
+            send: (command) => {
+                const command_send = '$AC,' + command + ' \n';
+                console.log('🙋🏼‍♂️ ' + command_send);
+                port.write(command_send);
             },
 
             bind: () => {

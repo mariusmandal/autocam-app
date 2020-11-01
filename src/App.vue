@@ -59,13 +59,13 @@
 
               <v-row class="mt-4">
                 <v-col>
-                  <SettingSlider name="Gain" :min="0" :max="4" />
+                  <SettingSlider name="Gain" setting="arduino.gain" :min="0" :max="4" />
                 </v-col>
               </v-row>
 
               <v-row class="mt-3">
                 <v-col>
-                  <SettingSlider name="Threshold" :min="0" :max="20" />
+                  <SettingSlider name="Threshold" setting="arduino.threshold"  :min="0" :max="20" />
                 </v-col>
               </v-row>
 
@@ -73,6 +73,7 @@
                 <v-col>
                   <SettingSlider
                     name="Total-kamera"
+                    setting="arduino.total" 
                     :min="1"
                     :max="8"
                     prefixValue="Input "
@@ -122,7 +123,7 @@
 import Microphone from "./components/Microphone";
 import Ports from "./components/Ports";
 import SettingSlider from "./components/SettingSlider";
-import electron from "electron";
+import ArduinoHelper from "./plugins/vue-arduino-helper";
 
 export default {
   name: "App",
@@ -160,22 +161,23 @@ export default {
         return alert("Beklager, må ha minst to mikrofoner");
       }
       this.microphones.pop();
+      this.methods
     },
     restart() {
       let sure = confirm("Er du sikker på at du vil restarte?");
       if( sure ) {
-        electron.ipcRenderer.send('ARDUINO.RESTART');
+        ArduinoHelper.send('arduino.restart');
         return true;
       }
       return false;
     },
   },
   mounted() {
-    electron.ipcRenderer.on("arduino.ready", (event, state) => {
+    ArduinoHelper.on("arduino.ready", (event, state) => {
       this.arduino_ready = state;
     });
 
-    electron.ipcRenderer.on('arduino.data', (event, data) => {
+    ArduinoHelper.on('arduino.data', (event, data) => {
       console.log('Got log data');
       this.log.unshift(data);
       if( this.log.length > 5 ) {
