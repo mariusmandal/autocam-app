@@ -28,6 +28,7 @@ module.exports = function ArduinoCommunications() {
         },
 
         selectPort: (event, port, ...args) => {
+            window.send('arduino.ready', false);
             self.log('selectPort()', port, ...args);
             self.setArduino(port, baudRate = 115200);
         },
@@ -40,7 +41,7 @@ module.exports = function ArduinoCommunications() {
             }
             duino = new ArduinoHelper(port, { baudRate });
             duino.on('open', (data) => {
-                window.send('arduino.ready');
+                window.send('arduino.ready', true);
             });
             duino.on('data', (data) => {
                 console.log('ArduinoData: ', data);

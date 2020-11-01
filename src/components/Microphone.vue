@@ -1,20 +1,19 @@
 <template>
-  <div>
+  <div align="center">
     <v-icon style="font-size: 3em;" class="test" :class="{active}" @click="toggleActive"
       >mdi-{{ active ? 'microphone' : 'microphone-off' }}</v-icon>
-    <p>{{ name }}</p>
+    <p>{{ mic.name }}</p>
   </div>
 </template>
 
 <script>
 export default {
   props: {
-    id: Number,
-    name: String,
+    mic: Object
   },
   data: function () {
     return {
-      active: false,
+      active: true,
     };
   },
   methods: {
@@ -35,6 +34,6 @@ export default {
 
 <style scoped>
     .v-icon.active {
-        color: #ff0000 !important;
+        /*color: #ff0000 !important;*/
     }
 </style>
