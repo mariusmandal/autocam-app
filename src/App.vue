@@ -23,6 +23,17 @@
                   <Microphone :mic="mic" />
                 </v-col>
               </v-row>
+
+              <v-row class="mt-5">
+                <v-col>
+                  <b>CONSOLE</b>
+                  <v-list>
+                    <v-list-item v-for="(line, index) in log" :key="index">
+                      {{line}}
+                    </v-list-item>
+                  </v-list>
+                </v-col>
+              </v-row>
             </v-container>
           </v-col>
           <v-col cols="2" class="settings">
@@ -45,13 +56,13 @@
                   <b>INNSTILLINGER</b>
                 </v-col>
               </v-row>
-              
+
               <v-row class="mt-4">
                 <v-col>
                   <SettingSlider name="Gain" :min="0" :max="4" />
                 </v-col>
               </v-row>
-              
+
               <v-row class="mt-3">
                 <v-col>
                   <SettingSlider name="Threshold" :min="0" :max="20" />
@@ -60,7 +71,20 @@
 
               <v-row class="mt-3">
                 <v-col>
-                  <SettingSlider name="Total-kamera" :min="1" :max="8" prefixValue="Input " />
+                  <SettingSlider
+                    name="Total-kamera"
+                    :min="1"
+                    :max="8"
+                    prefixValue="Input "
+                  />
+                </v-col>
+              </v-row>
+
+              <v-spacer />
+
+              <v-row>
+                <v-col class="mt-8" align="right" @click="restart">
+                  restart <v-icon>mdi-restart</v-icon>
                 </v-col>
               </v-row>
             </v-container>
@@ -97,7 +121,7 @@
 <script>
 import Microphone from "./components/Microphone";
 import Ports from "./components/Ports";
-import SettingSlider from './components/SettingSlider';
+import SettingSlider from "./components/SettingSlider";
 import electron from "electron";
 
 export default {
@@ -106,7 +130,7 @@ export default {
   components: {
     Ports,
     Microphone,
-    SettingSlider
+    SettingSlider,
   },
 
   data: () => {
@@ -118,6 +142,7 @@ export default {
         { id: 3, name: "Mikrofon 3" },
         { id: 4, name: "Mikrofon 4" },
       ],
+      log: []
     };
   },
   methods: {
@@ -136,10 +161,26 @@ export default {
       }
       this.microphones.pop();
     },
+    restart() {
+      let sure = confirm("Er du sikker på at du vil restarte?");
+      if( sure ) {
+        electron.ipcRenderer.send('ARDUINO.RESTART');
+        return true;
+      }
+      return false;
+    },
   },
   mounted() {
     electron.ipcRenderer.on("arduino.ready", (event, state) => {
       this.arduino_ready = state;
+    });
+
+    electron.ipcRenderer.on('arduino.data', (event, data) => {
+      console.log('Got log data');
+      this.log.unshift(data);
+      if( this.log.length > 5 ) {
+        this.log = this.log.slice(0,5);
+      }
     });
   },
 };

@@ -24,6 +24,12 @@ module.exports = function(events) {
                 self.log('emit(' + message + ')', data);
                 events.emit(message, data, ...args);
             },
+
+            restart: (event, data) => {
+                port.write('$AC,RESETCPU,\n');
+                self.emit('restarting');
+            },
+
             bind: () => {
                 self.log('bind');
                 port.on('open', (...args) => { self.emit('open', ...args); });

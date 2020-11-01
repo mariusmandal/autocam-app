@@ -1,6 +1,7 @@
 const SerialPortHelper = require('./helpers/serialport');
 const ArduinoHelper = require('./helpers/arduino');
 const WindowHelper = require('./helpers/window');
+const arduino = require('./helpers/arduino');
 
 module.exports = function ArduinoCommunications() {
     console.log('new ArduinoCommunications();');
@@ -21,7 +22,6 @@ module.exports = function ArduinoCommunications() {
 
             serialports.on('PORTS.LIST.DONE', window.sendListDone);
             window.on('SERIALPORT.LIST.GET', serialports.getPorts);
-
 
             window.on('SERIALPORT.SELECTED', self.selectPort);
             //window.on('SERIALPORT.SELECTED', window.setPort);
@@ -45,10 +45,14 @@ module.exports = function ArduinoCommunications() {
             });
             duino.on('data', (data) => {
                 console.log('ArduinoData: ', data);
+                window.send('arduino.data', data);
             });
+            self.bindWhenWeHaveArduino();
         },
 
-        bindArduinoActions: () => {},
+        bindWhenWeHaveArduino: () => {
+            window.on('ARDUINO.RESTART', duino.restart);
+        },
 
         log: (message, ...args) => {
             console.log('ArduinoCommunications: ', message, ...args);
