@@ -11,6 +11,19 @@ module.exports = function(events) {
         const arduino = port.pipe(new Readline({ delimiter: '\n' }));
 
         const LEVELS = [0, 1, 2, 4, 8, 16];
+        const COMMANDS = [
+            'restart',
+            'gain',
+            'threshold',
+            'total',
+            'status',
+            'inputs'
+        ];
+        const LISTENERS = [
+            'open',
+            'data',
+            'close'
+        ];
 
         const self = {
             log: (message, ...args) => {
@@ -25,6 +38,17 @@ module.exports = function(events) {
             emit: (message, data, ...args) => {
                 self.log('emit(' + message + ')', data);
                 events.emit(message, data, ...args);
+            },
+
+            removeAllListeners: () => {
+                events.removeAllListeners();
+            },
+
+            getAvailableCommands: () => {
+                return COMMANDS;
+            },
+            getAvailableListeners: () => {
+                return LISTENERS;
             },
 
             restart: (event, data) => {
@@ -44,21 +68,30 @@ module.exports = function(events) {
                 self.send('TOTAL,' + data);
             },
 
+            inputs: (event, data) => {
+                self.send('NUM_INPUTS,' + data);
+            },
+
+            status: (event, data) => {
+                self.send('STATUS');
+            },
+
             send: (command) => {
-                const command_send = '$AC,' + command + ' \n';
+                const command_send = '$AC,' + command + ',' + "\n";
                 console.log('🙋🏼‍♂️ ' + command_send);
                 port.write(command_send);
             },
 
             bind: () => {
                 self.log('bind');
-                port.on('open', (...args) => { self.emit('open', ...args); });
-                arduino.on('data', (...args) => { self.emit('data', ...args); });
+                port.on('open', (...args) => { self.emit('open', true); });
+                //arduino.on('data', (...args) => { self.emit('data', ...args); });
                 arduino.on('close', (...args) => { self.emit('close', ...args); });
             },
             close: () => {
                 if (port && port.isOpen) {
                     port.close();
+                    self.removeAllListeners();
                 }
             }
         }

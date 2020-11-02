@@ -8,15 +8,15 @@ module.exports = function(events) {
 
         const self = {
             getPorts: (...args) => {
-                self.log('getPorts()', ...args);
+                self.log('getPorts()');
                 SerialPort.list()
                     .then((ports) => {
                         portList = [];
                         ports.forEach((port) => { portList.push(port); })
-                        events.emit('PORTS.LIST.DONE', portList);
+                        events.emit('serialports.list.done', portList);
                     })
                     .catch((error) => {
-                        events.emit('PORTS.LIST.ERROR', error);
+                        events.emit('serialports.list.error', error);
                     });
                 return;
             },
@@ -26,12 +26,15 @@ module.exports = function(events) {
             },
 
             on: (message, callback, ...args) => {
-                self.log('on(' + message + '):', ...args);
+                self.log('on(' + message + ')');
                 events.on(message, callback);
             },
             emit: (message, data, ...args) => {
                 self.log('emit(' + message + ')', ...args);
                 events.emit(message, data, ...args);
+            },
+            removeAllListeners: () => {
+                events.removeAllListeners();
             },
         }
         return self;

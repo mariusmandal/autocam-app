@@ -29,7 +29,7 @@
                   <b>CONSOLE</b>
                   <v-list>
                     <v-list-item v-for="(line, index) in log" :key="index">
-                      {{line}}
+                      {{ line }}
                     </v-list-item>
                   </v-list>
                 </v-col>
@@ -59,13 +59,23 @@
 
               <v-row class="mt-4">
                 <v-col>
-                  <SettingSlider name="Gain" setting="arduino.gain" :min="0" :max="4" />
+                  <SettingSlider
+                    name="Gain"
+                    setting="arduino.gain"
+                    :min="0"
+                    :max="4"
+                  />
                 </v-col>
               </v-row>
 
               <v-row class="mt-3">
                 <v-col>
-                  <SettingSlider name="Threshold" setting="arduino.threshold"  :min="0" :max="20" />
+                  <SettingSlider
+                    name="Threshold"
+                    setting="arduino.threshold"
+                    :min="0"
+                    :max="20"
+                  />
                 </v-col>
               </v-row>
 
@@ -73,7 +83,7 @@
                 <v-col>
                   <SettingSlider
                     name="Total-kamera"
-                    setting="arduino.total" 
+                    setting="arduino.total"
                     :min="1"
                     :max="8"
                     prefixValue="Input "
@@ -84,6 +94,10 @@
               <v-spacer />
 
               <v-row>
+                <v-col class="mt-8" align="right" @click="status">
+                  <v-icon>mdi-magnify</v-icon>
+                  status
+                </v-col>
                 <v-col class="mt-8" align="right" @click="restart">
                   restart <v-icon>mdi-restart</v-icon>
                 </v-col>
@@ -136,14 +150,14 @@ export default {
 
   data: () => {
     return {
-      arduino_ready: true,
+      arduino_ready: false,
       microphones: [
         { id: 1, name: "Mikrofon 1" },
         { id: 2, name: "Mikrofon 2" },
         { id: 3, name: "Mikrofon 3" },
         { id: 4, name: "Mikrofon 4" },
       ],
-      log: []
+      log: [],
     };
   },
   methods: {
@@ -155,33 +169,41 @@ export default {
         id: this.microphones.length + 1,
         name: "Mikrofon " + (this.microphones.length + 1),
       });
+      ArduinoHelper.send("arduino.inputs", this.microphones.length);
     },
     removeMic() {
       if (this.microphones.length < 3) {
         return alert("Beklager, må ha minst to mikrofoner");
       }
       this.microphones.pop();
-      this.methods
+      ArduinoHelper.send("arduino.inputs", this.microphones.length);
     },
     restart() {
       let sure = confirm("Er du sikker på at du vil restarte?");
-      if( sure ) {
-        ArduinoHelper.send('arduino.restart');
+      if (sure) {
+        ArduinoHelper.send("arduino.restart");
         return true;
       }
       return false;
     },
+    status() {
+      ArduinoHelper.send("arduino.status");
+    },
   },
   mounted() {
-    ArduinoHelper.on("arduino.ready", (event, state) => {
+    ArduinoHelper.on("arduino.open", (event, state) => {
       this.arduino_ready = state;
     });
+    
+    ArduinoHelper.on("arduino.close", (event, state) => {
+      this.arduino_ready = false;
+    });
 
-    ArduinoHelper.on('arduino.data', (event, data) => {
-      console.log('Got log data');
+    ArduinoHelper.on("arduino.data", (event, data) => {
+      console.log("Got log data");
       this.log.unshift(data);
-      if( this.log.length > 5 ) {
-        this.log = this.log.slice(0,5);
+      if (this.log.length > 5) {
+        this.log = this.log.slice(0, 5);
       }
     });
   },

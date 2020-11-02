@@ -25,16 +25,16 @@ const portComponent = {
   methods: {
     portSelect: function (selected) {
       console.log("Select port:", selected);
-      ArduinoHelper.send('SERIALPORT.SELECTED', selected);
+      ArduinoHelper.send('serialport.selected', selected);
     },
     focus: function () {
       console.log("time to load at least!");
-      ArduinoHelper.send('SERIALPORT.LIST.GET');
+      ArduinoHelper.send('serialport.list.get');
     },
   },
 };
 
-ArduinoHelper.on('PORTS.LIST.DONE', (event, list) => {
+ArduinoHelper.on('serialport.list.done', (event, list) => {
   console.log('Serial ports: ', list);
   list.forEach(port => {
     all_ports.push(port.path);
