@@ -22,14 +22,22 @@
                 <v-col v-for="mic in microphones" :key="mic.id">
                   <Microphone :mic="mic" />
                 </v-col>
+                <v-col>
+                  <div align="center">
+                    <Camera :id="getTotalId()"/>
+                    <v-icon style="font-size: 3em">mdi-account-group</v-icon>
+                    <v-badge :content="getTotalId()"></v-badge>
+                    <p>Total</p>
+                  </div>
+                </v-col>
               </v-row>
 
               <v-row class="mt-5">
                 <v-col>
                   <b>CONSOLE</b>
                   <v-list>
-                    <v-list-item v-for="(line, index) in log" :key="index">
-                      {{ line }}
+                    <v-list-item v-for="(line, index) in getLog()" :key="index">
+                      <v-icon>mdi-{{line.icon}}</v-icon> &nbsp; {{ line.message }}
                     </v-list-item>
                   </v-list>
                 </v-col>
@@ -86,6 +94,7 @@
                     setting="arduino.total"
                     :min="1"
                     :max="8"
+                    :value="getTotalId()"
                     prefixValue="Input "
                   />
                 </v-col>
@@ -134,6 +143,7 @@
 </style>
 
 <script>
+import Camera from "./components/Camera";
 import Microphone from "./components/Microphone";
 import Ports from "./components/Ports";
 import SettingSlider from "./components/SettingSlider";
@@ -143,6 +153,7 @@ export default {
   name: "App",
 
   components: {
+    Camera,
     Ports,
     Microphone,
     SettingSlider,
@@ -151,16 +162,20 @@ export default {
   data: () => {
     return {
       arduino_ready: false,
+      total_id: 4,
       microphones: [
-        { id: 1, name: "Mikrofon 1" },
-        { id: 2, name: "Mikrofon 2" },
-        { id: 3, name: "Mikrofon 3" },
-        { id: 4, name: "Mikrofon 4" },
+        { id: 1, name: "Mikrofon 1", active: false },
+        { id: 2, name: "Mikrofon 2", active: false },
+        { id: 3, name: "Mikrofon 3", active: false },
       ],
-      log: [],
+      log_elements: [],
+      max_log_elements: 8,
     };
   },
   methods: {
+    getTotalId() {
+      return this.total_id;
+    },
     addMic() {
       if (this.microphones.length > 3) {
         return alert("Beklager, kan ikke legge til flere mikrofoner.");
@@ -189,23 +204,40 @@ export default {
     status() {
       ArduinoHelper.send("arduino.status");
     },
+    getLog() {
+      return this.log_elements;
+    },
+    log(icon, message) {
+      this.log_elements.unshift({icon, message});
+      if (this.log_elements.length > this.max_log_elements) {
+        this.log_elements = this.log_elements.slice(0, this.max_log_elements);
+      }
+    }
   },
   mounted() {
     ArduinoHelper.on("arduino.open", (event, state) => {
       this.arduino_ready = state;
     });
-    
+
     ArduinoHelper.on("arduino.close", (event, state) => {
       this.arduino_ready = false;
     });
 
     ArduinoHelper.on("arduino.data", (event, data) => {
       console.log("Got log data");
-      this.log.unshift(data);
-      if (this.log.length > 5) {
-        this.log = this.log.slice(0, 5);
-      }
+      
     });
+
+    ArduinoHelper.on('arduino.cut', (event, data) => {
+      console.warn('ARDUINO CUT', data);
+      this.log('camera', data.input +': '+ data.reason);
+    });
+
+    ArduinoHelper.on('arduino.total', (event, data) => {
+      console.log('Total ID set:', data);
+      this.total_id = parseInt(data);
+    });
+
   },
 };
 </script>

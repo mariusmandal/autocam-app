@@ -3,12 +3,8 @@ const Readline = require('@serialport/parser-readline');
 const EventEmitter = require('events');
 
 module.exports = function(events) {
-    return function ArduinoHelper(_port, { baudRate = 115200 }) {
-
-        console.log('ArduionoHelper:setPort()', _port);
+    return function ArduinoHelper() {
         events.removeAllListeners();
-        const port = new SerialPort(_port, { baudRate });
-        const arduino = port.pipe(new Readline({ delimiter: '\n' }));
 
         const LEVELS = [0, 1, 2, 4, 8, 16];
         const COMMANDS = [
@@ -25,7 +21,28 @@ module.exports = function(events) {
             'close'
         ];
 
+        let port;
+        let arduino;
+
         const self = {
+            setPort: function(_port, { baudRate = 115200 }) {
+                console.log('ArduionoHelper:setPort()', _port);
+                // Close current port (if one is current)
+                self.close();
+                // Set up new port
+                port = new SerialPort(_port, { baudRate });
+                arduino = port.pipe(new Readline({ delimiter: '\n' }));
+                // Bind port and arduino to self
+                self.bind();
+            },
+
+            bind: () => {
+                self.log('(re)bind');
+                port.on('open', (...args) => { self.emit('open', true); });
+                arduino.on('data', (...args) => { self.emit('data', ...args); });
+                arduino.on('close', (...args) => { self.emit('close', ...args); });
+            },
+
             log: (message, ...args) => {
                 console.log('ArduinoHelper: ', message, ...args);
             },
@@ -47,6 +64,7 @@ module.exports = function(events) {
             getAvailableCommands: () => {
                 return COMMANDS;
             },
+
             getAvailableListeners: () => {
                 return LISTENERS;
             },
@@ -82,20 +100,18 @@ module.exports = function(events) {
                 port.write(command_send);
             },
 
-            bind: () => {
-                self.log('bind');
-                port.on('open', (...args) => { self.emit('open', true); });
-                //arduino.on('data', (...args) => { self.emit('data', ...args); });
-                arduino.on('close', (...args) => { self.emit('close', ...args); });
-            },
             close: () => {
                 if (port && port.isOpen) {
                     port.close();
-                    self.removeAllListeners();
+
+                    // Removing listeners is most likely redundant
+                    port.removeAllListeners();
+                    if (arduino) {
+                        arduino.removeAllListeners();
+                    }
                 }
             }
         }
-        self.bind();
 
         return self;
     }

@@ -16,6 +16,7 @@ export default {
     max: Number,
     prefixValue: String,
     setting: String,
+    current: Number
   },
   data: function () {
     return {
@@ -28,6 +29,9 @@ export default {
       ArduinoHelper.send(this.setting, this.value);
     },
   },
+  mounted() {
+    this.value = this.current;
+  }
 };
 </script>
 

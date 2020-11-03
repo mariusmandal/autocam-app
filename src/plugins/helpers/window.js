@@ -16,6 +16,10 @@ module.exports = function WindowHelper(window) {
             return self.send('serialport.list.done', message, data);
         },
 
+        sendTotal: (message, data) => {
+            return self.send('arduino.total', data);
+        },
+
         on: (message, callback) => {
             self.log('on(' + message + ')'); //, message, callback);
             ipcMain.on(message, callback);

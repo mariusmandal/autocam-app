@@ -1,20 +1,25 @@
 <template>
   <div align="center">
-    <v-icon style="font-size: 3em;" class="test" :class="{active}" @click="toggleActive"
-      >mdi-{{ active ? 'microphone' : 'microphone-off' }}</v-icon>
+    <Camera :id="mic.id" :active="false" />
+    <v-icon style="font-size: 3em" :class="{ active: mic.active }"
+      >mdi-microphone</v-icon>
     <p>{{ mic.name }}</p>
   </div>
 </template>
 
 <script>
+
+import Camera from './Camera';
+
 export default {
+  components: {
+    Camera
+  },
   props: {
-    mic: Object
+    mic: Object,
   },
   data: function () {
-    return {
-      active: true,
-    };
+    return {};
   },
   methods: {
     toggleActive: function () {
@@ -33,7 +38,7 @@ export default {
 </script>
 
 <style scoped>
-    .v-icon.active {
-        /*color: #ff0000 !important;*/
-    }
+.v-icon.active {
+  /*color: #ff0000 !important;*/
+}
 </style>
