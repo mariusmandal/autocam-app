@@ -27,8 +27,6 @@ module.exports = function ArduinoCommunications() {
             window.on('serialport.selected', self.selectPort);
         },
 
-        setArduino: (port, { baudRate = 115200 }) => {
-            duino = new ArduinoHelper(port, { baudRate });
         bindArduinoToWindow: () => {
             duino.getAvailableListeners().forEach((listener) => {
                 duino.on(listener, (data) => {
