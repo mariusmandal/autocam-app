@@ -8,7 +8,6 @@ module.exports = function(events) {
 
         const self = {
             getPorts: (...args) => {
-                self.log('getPorts()');
                 SerialPort.list()
                     .then((ports) => {
                         portList = [];
@@ -22,6 +21,7 @@ module.exports = function(events) {
             },
 
             log: (message, ...args) => {
+                return;
                 console.log('SerialPortHelper: ', message, ...args);
             },
 

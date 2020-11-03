@@ -13,17 +13,17 @@ export default {
   },
   data: function () {
     return {
-      active: false
+      active: false,
     };
   },
   methods: {
-    setActive( status ) {
+    setActive(status) {
       this.active = status;
-    }
+    },
   },
   mounted() {
     ArduinoHelper.on("arduino.cut", (event, data) => {
-      this.setActive( this.id == data.input);
+      this.setActive(this.id == data.input);
     });
   },
 };

@@ -3,8 +3,6 @@ const ArduinoHelper = require('./helpers/arduino');
 const WindowHelper = require('./helpers/window');
 
 module.exports = function ArduinoCommunications() {
-    console.log('new ArduinoCommunications();');
-
     const serialports = new SerialPortHelper();
     const duino = new ArduinoHelper();
 
@@ -13,7 +11,6 @@ module.exports = function ArduinoCommunications() {
 
     const self = {
         registerWindow: (_window) => {
-            self.log('registerWindow()');
             window = new WindowHelper(_window);
             self.bindSerialPortActions();
             self.bindWindowToArduinoOnce();
@@ -21,7 +18,6 @@ module.exports = function ArduinoCommunications() {
         },
 
         bindSerialPortActions: () => {
-            self.log('bindSerialPortActions()');
             window.on('serialport.list.get', serialports.getPorts);
             serialports.on('serialports.list.done', window.sendListDone);
             window.on('serialport.selected', self.selectPort);
@@ -38,21 +34,23 @@ module.exports = function ArduinoCommunications() {
         bindWindowToArduinoOnce: () => {
             if (!didBindArduino) {
                 duino.getAvailableCommands().forEach((command) => {
+                    // Forward the message from window to arduino
                     window.on('arduino.' + command, duino[command]);
+                    // Notify self (since child component might wanna tell mom what they did)
+                    window.on('arduino.' + command, (event, data) => {
+                        window.notifySelf('arduino.' + command, data);
+                    });
                 });
-                window.on('arduino.total', window.sendTotal);
                 didBindArduino = true;
             }
         },
 
         selectPort: (event, port, ...args) => {
-            self.log('selectPort()', port, ...args);
             window.send('arduino.open', false);
             self.setArduino(port, baudRate = 115200);
         },
 
         setArduino: (port, { baudRate = 115200 }) => {
-            self.log('setArduino()', port);
             duino.setPort(port, { baudRate });
         },
 
@@ -79,22 +77,25 @@ module.exports = function ArduinoCommunications() {
                         case 'CUT':
                             self.cut(intel[0], intel[1].replace('REASON:', ''));
                             break;
+                        case 'LEVELS':
+                            self.levels(intel);
+                            break;
                         case 'STATUS':
                             self.status(intel);
                             break;
                         default:
-                            console.log('Unsupported arduino data action: ' + action);
-                            console.log('Remaining infos: ', intel);
+                            self.log('Unsupported arduino data action: ' + action);
+                            self.log('Remaining infos: ', intel);
                     }
                     break;
                 default:
-                    console.log('Unsupported arduino event: ' + event);
+                    self.log('Unsupported arduino event: ' + event);
                     break;
             }
         },
 
         cut: function(input, reason) {
-            console.log('📸  ' + input + ' (' + reason + ')');
+            self.log('📸  ' + input + ' (' + reason + ')');
             window.send('arduino.cut', { input: input, reason: reason });
         },
 
@@ -103,7 +104,19 @@ module.exports = function ArduinoCommunications() {
         },
 
         status: function(info) {
-            console.log('STATUS:', info);
+            self.log('STATUS:', info);
+        },
+
+        levels: function(info) {
+            samples = info.shift();
+            let data = {
+                samples: samples.replace('SAMPLES:', '')
+            };
+            info.forEach((level) => {
+                levelData = level.split(':');
+                data[levelData[0]] = levelData[1];
+            });
+            window.send('arduino.levels', data);
         },
 
         log: (message, ...args) => {

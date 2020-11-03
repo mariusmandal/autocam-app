@@ -26,7 +26,7 @@ module.exports = function(events) {
 
         const self = {
             setPort: function(_port, { baudRate = 115200 }) {
-                console.log('ArduionoHelper:setPort()', _port);
+                self.log('ArduinoHelper:setPort()', _port);
                 // Close current port (if one is current)
                 self.close();
                 // Set up new port
@@ -37,13 +37,13 @@ module.exports = function(events) {
             },
 
             bind: () => {
-                self.log('(re)bind');
                 port.on('open', (...args) => { self.emit('open', true); });
                 arduino.on('data', (...args) => { self.emit('data', ...args); });
                 arduino.on('close', (...args) => { self.emit('close', ...args); });
             },
 
             log: (message, ...args) => {
+                return;
                 console.log('ArduinoHelper: ', message, ...args);
             },
 

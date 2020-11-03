@@ -1,44 +1,56 @@
 <template>
   <div align="center">
     <Camera :id="mic.id" :active="false" />
-    <v-icon style="font-size: 3em" :class="{ active: mic.active }"
-      >mdi-microphone</v-icon>
+    <v-icon style="font-size: 5em" :class="{ active: mic.active }"
+      >mdi-microphone</v-icon
+    >
     <p>{{ mic.name }}</p>
+
+    <v-progress-circular
+      :rotate="360"
+      :size="80"
+      :width="15"
+      :value="getLevel()"
+      color="teal"
+    >
+      {{ getLevel() }}
+    </v-progress-circular>
   </div>
 </template>
 
 <script>
-
-import Camera from './Camera';
+import ArduinoHelper from "../plugins/vue-arduino-helper";
+import Camera from "./Camera";
 
 export default {
   components: {
-    Camera
+    Camera,
   },
   props: {
     mic: Object,
   },
   data: function () {
-    return {};
+    return {
+      level: 10,
+    };
   },
   methods: {
-    toggleActive: function () {
-      console.log("ToggleMic", this);
-      console.log(this.active);
-      this.active = !this.active;
-      console.log(this.active);
+    setLevel: function (level) {
+      this.level = level;
     },
-    getState: function () {
-      var state = "N/A atm";
-      console.log("This is my state atm", state);
-      return state;
+    getLevel() {
+      return this.level;
     },
+  },
+  mounted() {
+    ArduinoHelper.on("arduino.levels", (level, levelData) => {
+      this.setLevel(
+        Math.ceil(
+          (100 / parseInt(levelData["samples"])) *
+            parseInt(levelData["INP" + this.mic.id])
+        )
+      );
+    });
   },
 };
 </script>
-
-<style scoped>
-.v-icon.active {
-  /*color: #ff0000 !important;*/
-}
-</style>

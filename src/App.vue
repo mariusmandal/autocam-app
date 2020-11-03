@@ -24,7 +24,7 @@
                 </v-col>
                 <v-col>
                   <div align="center">
-                    <Camera :id="getTotalId()"/>
+                    <Camera :id="getTotalId()" />
                     <v-icon style="font-size: 3em">mdi-account-group</v-icon>
                     <v-badge :content="getTotalId()"></v-badge>
                     <p>Total</p>
@@ -33,11 +33,20 @@
               </v-row>
 
               <v-row class="mt-5">
-                <v-col>
-                  <b>CONSOLE</b>
+                <v-col class="ml-8">
+                  <b>VIDEOMIKSER</b>
+                  <v-list>
+                    <v-list-item>
+                      <b>IP:</b> 192.168.1.1
+                    </v-list-item>
+                  </v-list>
+                </v-col>
+                <v-col class="mr-8">
+                  <b>LOGG</b>
                   <v-list>
                     <v-list-item v-for="(line, index) in getLog()" :key="index">
-                      <v-icon>mdi-{{line.icon}}</v-icon> &nbsp; {{ line.message }}
+                      <v-icon class="mr-2">mdi-{{ line.icon }}</v-icon> &nbsp;
+                      {{ line.message }}
                     </v-list-item>
                   </v-list>
                 </v-col>
@@ -94,7 +103,7 @@
                     setting="arduino.total"
                     :min="1"
                     :max="8"
-                    :value="getTotalId()"
+                    :current="getTotalId()"
                     prefixValue="Input "
                   />
                 </v-col>
@@ -149,6 +158,34 @@ import Ports from "./components/Ports";
 import SettingSlider from "./components/SettingSlider";
 import ArduinoHelper from "./plugins/vue-arduino-helper";
 
+const logHelper = [
+  {
+    trigger: 'arduino.gain',
+    icon: 'microphone-settings',
+    message: 'Satte gain til %data'
+  },
+  {
+    trigger: 'arduino.threshold',
+    icon: 'speedometer',
+    message: 'Satte threshold til %data'
+  },
+  {
+    trigger: 'arduino.total',
+    icon: 'account-group',
+    message: 'Satte total-kamera til input %data'
+  },
+  {
+    trigger: 'arduino.restart',
+    icon: 'restart',
+    message: 'Ba arduino om å restarte'
+  },
+  {
+    trigger: 'arduino.inputs',
+    icon: 'microphone',
+    message: 'Satte antall mikrofoner til %data'
+  }
+];
+
 export default {
   name: "App",
 
@@ -169,7 +206,7 @@ export default {
         { id: 3, name: "Mikrofon 3", active: false },
       ],
       log_elements: [],
-      max_log_elements: 8,
+      max_log_elements: 6,
     };
   },
   methods: {
@@ -208,11 +245,11 @@ export default {
       return this.log_elements;
     },
     log(icon, message) {
-      this.log_elements.unshift({icon, message});
+      this.log_elements.unshift({ icon, message });
       if (this.log_elements.length > this.max_log_elements) {
         this.log_elements = this.log_elements.slice(0, this.max_log_elements);
       }
-    }
+    },
   },
   mounted() {
     ArduinoHelper.on("arduino.open", (event, state) => {
@@ -223,21 +260,19 @@ export default {
       this.arduino_ready = false;
     });
 
-    ArduinoHelper.on("arduino.data", (event, data) => {
-      console.log("Got log data");
-      
+    ArduinoHelper.on("arduino.cut", (event, data) => {
+      this.log("camera", data.input + ": " + data.reason);
     });
 
-    ArduinoHelper.on('arduino.cut', (event, data) => {
-      console.warn('ARDUINO CUT', data);
-      this.log('camera', data.input +': '+ data.reason);
+    logHelper.forEach( (action) => {
+      ArduinoHelper.on(action.trigger, (event, data) => {
+        this.log(action.icon, action.message.replace('%data', data));
+      });
     });
 
-    ArduinoHelper.on('arduino.total', (event, data) => {
-      console.log('Total ID set:', data);
+    ArduinoHelper.on("arduino.total", (event, data) => {
       this.total_id = parseInt(data);
     });
-
   },
 };
 </script>
