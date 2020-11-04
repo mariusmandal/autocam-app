@@ -5,6 +5,22 @@
 ### VUE-customization
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
+## Installasjon i dev-miljø
+Neeesten painless! 😅
+
+- **Installert electron globalt:** <br />
+`$ npm install electron -g`
+
+- **Installert vue-cli globalt:**<br />
+`$ npm install -g @vue/cli`
+
+- **Oppdatert node-versjon:** <br />
+`$ nvm install --lts`
+
+- **Installer prosjektets dependencies:**<br />
+`$ npm install`
+
+
 
 ## Hvordan jeg kom hit
 Etter langt og lenge, kom jeg endelig frem til at dette var veien til en fungerende boilerplate. Hvordan mac'en min nå er satt opp aner jeg ikke, da flere forsøk har involvert både `npm install -g` (sorry) og `brew install`. Easy-peasy ifølge mange, men, vel...
