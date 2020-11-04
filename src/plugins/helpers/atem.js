@@ -38,6 +38,10 @@ module.exports = function(events) {
                 self.log('ATEM:connect:error', error);
             }
         });
+        
+        client.on('error', (error) => {
+            console.log("caught error in net.js." + error);
+        });
 
         client.on('close', () => {
             self.reconnect();
@@ -55,6 +59,7 @@ module.exports = function(events) {
                     client.connect({ port, host }, () => {
                         self.connected();
                     });
+
                 } catch (error) {
                     self.log('ATEM connect major error:', error);
                 };
