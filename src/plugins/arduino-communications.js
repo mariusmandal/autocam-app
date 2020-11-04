@@ -1,13 +1,18 @@
 const SerialPortHelper = require('./helpers/serialport');
 const ArduinoHelper = require('./helpers/arduino');
 const WindowHelper = require('./helpers/window');
+const { Atem } = require('atem-connection');
+
+const atemIp = '172.16.1.47';
 
 module.exports = function ArduinoCommunications() {
     const serialports = new SerialPortHelper();
     const duino = new ArduinoHelper();
+    const atemhelper = new Atem();
 
     let window;
     let didBindArduino = false;
+    let atemIsConnected = false;
 
     const self = {
         registerWindow: (_window) => {
@@ -21,6 +26,23 @@ module.exports = function ArduinoCommunications() {
             window.on('serialport.list.get', serialports.getPorts);
             serialports.on('serialports.list.done', window.sendListDone);
             window.on('serialport.selected', self.selectPort);
+        },
+
+        connectToAtem(ip) {
+            console.log('Connect to ATEM using NRK Sofie', ip);
+            atemhelper.connect(ip).then(() => {
+                console.log('Atem connected');
+            }).catch((err) => {
+                console.log('Atem connection error: ', err);
+            });
+        },
+
+        bindAtem: () => {
+            atemhelper.on('info', console.log);
+            atemhelper.on('error', console.log);
+            atemhelper.on('connected', () => {
+                atemIsConnected = true;
+            });
         },
 
         bindArduinoToWindow: () => {
@@ -97,6 +119,13 @@ module.exports = function ArduinoCommunications() {
         cut: function(input, reason) {
             self.log('📸  ' + input + ' (' + reason + ')');
             window.send('arduino.cut', { input: input, reason: reason });
+            if (atemIsConnected) {
+                atemhelper.changeProgramInput(input).then(() => {
+                    console.log('Input should be changed now');
+                });
+            } else {
+                console.log('ATEM: could not cut - switcher not connected');
+            }
         },
 
         round: function(info) {
@@ -123,6 +152,8 @@ module.exports = function ArduinoCommunications() {
             console.log('ArduinoCommunications: ', message, ...args);
         }
     }
+    self.bindAtem();
+    self.connectToAtem(atemIp);
 
     return self;
 }

@@ -37,7 +37,7 @@
                   <b>VIDEOMIKSER</b>
                   <v-list>
                     <v-list-item>
-                      <b>IP:</b> 192.168.1.1
+                      <b>IP:</b> {{getAtemIp()}}
                     </v-list-item>
                   </v-list>
                 </v-col>
@@ -207,6 +207,7 @@ export default {
       ],
       log_elements: [],
       max_log_elements: 6,
+      atem_ip: '172.16.1.50'
     };
   },
   methods: {
@@ -250,6 +251,9 @@ export default {
         this.log_elements = this.log_elements.slice(0, this.max_log_elements);
       }
     },
+    getAtemIp() {
+      return this.atem_ip;
+    }
   },
   mounted() {
     ArduinoHelper.on("arduino.open", (event, state) => {
