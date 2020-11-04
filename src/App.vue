@@ -112,11 +112,11 @@
               <v-spacer />
 
               <v-row>
-                <v-col class="mt-8" align="right" @click="status">
+                <v-col class="mt-8" align="right" @click="status" style="cursor:pointer;">
                   <v-icon>mdi-magnify</v-icon>
                   status
                 </v-col>
-                <v-col class="mt-8" align="right" @click="restart">
+                <v-col class="mt-8" align="right" @click="restart" style="cursor:pointer;">
                   restart <v-icon>mdi-restart</v-icon>
                 </v-col>
               </v-row>
