@@ -1,10 +1,15 @@
 const SerialPortHelper = require('./helpers/serialport');
 const ArduinoHelper = require('./helpers/arduino');
 const WindowHelper = require('./helpers/window');
+const AtemHelper = require('./helpers/atem');
+
+const atemIp = '172.16.1.47';
+const port = 8080;
 
 module.exports = function ArduinoCommunications() {
     const serialports = new SerialPortHelper();
     const duino = new ArduinoHelper();
+    const atem = new AtemHelper(port, { host: 'localhost' });
 
     let window;
     let didBindArduino = false;
@@ -21,6 +26,11 @@ module.exports = function ArduinoCommunications() {
             window.on('serialport.list.get', serialports.getPorts);
             serialports.on('serialports.list.done', window.sendListDone);
             window.on('serialport.selected', self.selectPort);
+        },
+
+        connectAtem(ip) {
+            console.log('Connect to ATEM', ip);
+            atem.connect(ip);
         },
 
         bindArduinoToWindow: () => {
@@ -97,6 +107,7 @@ module.exports = function ArduinoCommunications() {
         cut: function(input, reason) {
             self.log('📸  ' + input + ' (' + reason + ')');
             window.send('arduino.cut', { input: input, reason: reason });
+            atem.cut(input);
         },
 
         round: function(info) {
@@ -123,6 +134,7 @@ module.exports = function ArduinoCommunications() {
             console.log('ArduinoCommunications: ', message, ...args);
         }
     }
+    self.connectAtem(atemIp);
 
     return self;
 }
