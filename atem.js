@@ -1,6 +1,6 @@
 const Net = require('net');
 const { Atem } = require('atem-connection');
-const port = 8080;
+const port = 8090;
 
 const Server = new Net.Server();
 const atemClient = new Atem();

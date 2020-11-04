@@ -4,7 +4,7 @@ const WindowHelper = require('./helpers/window');
 const AtemHelper = require('./helpers/atem');
 
 const atemIp = '172.16.1.47';
-const port = 8080;
+const port = 8090;
 
 module.exports = function ArduinoCommunications() {
     const serialports = new SerialPortHelper();
@@ -26,6 +26,10 @@ module.exports = function ArduinoCommunications() {
             window.on('serialport.list.get', serialports.getPorts);
             serialports.on('serialports.list.done', window.sendListDone);
             window.on('serialport.selected', self.selectPort);
+        },
+
+        bindAtem() {
+            atem.on('error', console.log);
         },
 
         connectAtem(ip) {
@@ -134,6 +138,7 @@ module.exports = function ArduinoCommunications() {
             console.log('ArduinoCommunications: ', message, ...args);
         }
     }
+    self.bindAtem();
     self.connectAtem(atemIp);
 
     return self;
