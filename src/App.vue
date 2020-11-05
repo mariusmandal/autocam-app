@@ -11,7 +11,7 @@
     </v-app-bar>
 
     <v-main>
-      <v-container fluid v-if="arduino_ready" class="pt-0 mb-0 pb-0" style="height: calc( 100vh - 80px);">
+      <v-container fluid v-if="arduino_ready" class="pt-0 mb-0 pb-0" style="height: calc( 100vh - 54px);">
         <v-row>
           <v-col cols="8">
             <v-container fluid class="ma-0 pa-0">
@@ -128,7 +128,7 @@
 
 <style>
 body {
-  font-size: 10px;
+  font-size: 14px;
   color: #00ff00;
   overflow: hidden;
   -webkit-scrollbar: hidden;
@@ -213,7 +213,7 @@ export default {
         { id: 3, name: "Mikrofon 3", active: false },
       ],
       log_elements: [],
-      max_log_elements: 6,
+      max_log_elements: 3,
     };
   },
   methods: {
