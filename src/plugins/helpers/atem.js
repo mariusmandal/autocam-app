@@ -10,50 +10,15 @@ module.exports = function(events) {
         let reconnectAttempt = 0;
         const client = new Net.Socket();
 
-        client.on('data', (chunk) => {
-            data = chunk.toString();
-            console.log('DATAfromATEM: ', data);
-
-            // Wrong application's answering our request
-            // Will it help to retry? IDK. 
-            // Anything better to do? IDK.
-            if (data.includes('HTTP/1.1 400')) {
-                self.emit('error', 'Someone who\'s not ATEM-helper is answering at port ' + port + ' 😬');
-                try {
-                    client.end();
-                } catch (error) {
-                    // noooothing todo? or should we reconnect
-                }
-                return;
-            }
-
-            self.parse(chunk.toString());
-        });
-
-        client.on('ready', () => {
-            try {
-                client.write('connect|' + atemIp);
-                self.log('ATEM:connect:write');
-            } catch (error) {
-                self.log('ATEM:connect:error', error);
-            }
-        });
-        
-        client.on('error', (error) => {
-            console.log("caught error in net.js." + error);
-        });
-
-        client.on('close', () => {
-            self.reconnect();
-        });
-
         const self = {
             setIp: (ip) => {
                 self.connect(ip);
             },
 
             connect: (ip) => {
-                atemIp = ip;
+                if (ip) {
+                    atemIp = ip;
+                }
                 try {
                     self.log('ATEM:connect');
                     client.connect({ port, host }, () => {
@@ -70,7 +35,7 @@ module.exports = function(events) {
                 self.disconnected();
                 if (!reconnectInterval) {
                     self.log('Start reconnecting');
-                    reconnectInterval = setInterval(self.connect, 5000);
+                    reconnectInterval = setInterval(self.connect, 1000);
                 } else {
                     self.log('Already reconnecting');
                 }
@@ -84,6 +49,7 @@ module.exports = function(events) {
                     reconnectInterval = false;
                 }
                 connected = true;
+                reconnectAttempt = 0;
             },
 
             disconnected: () => {
@@ -93,7 +59,8 @@ module.exports = function(events) {
             cut: (input) => {
                 self.log('CUT', input);
                 if (connected) {
-                    client.write('cut|' + input);
+                    //client.write('cut|' + input);
+                    client.write('changeProgramInput|' + input);
                 } else {
                     self.log('Command not sent - not connected to socket');
                 }
@@ -101,6 +68,40 @@ module.exports = function(events) {
 
             parse: (data) => {
                 self.log('PARSE:', data);
+            },
+
+            bindClient: () => {
+                client.on('data', (chunk) => {
+                    data = chunk.toString();
+                    self.log('DATAfromATEM: ', data);
+
+                    // Wrong application's answering our request
+                    // Will it help to retry? IDK. 
+                    // Anything better to do? IDK.
+                    if (data.includes('HTTP/1.1 400')) {
+                        self.emit('error', 'Someone who\'s not ATEM-helper is answering at port ' + port + ' 😬');
+                        try {
+                            client.end();
+                        } catch (error) {
+                            // noooothing todo? or should we reconnect
+                        }
+                        return;
+                    }
+
+                    self.parse(chunk.toString());
+                });
+
+                client.on('ready', () => {
+                    try {
+                        client.write('connect|' + atemIp);
+                        self.log('ATEM:connect:write');
+                    } catch (error) {
+                        self.log('ATEM:connect:error', error);
+                    }
+                });
+
+                client.on('error', self.log);
+                client.on('close', self.reconnect);
             },
 
             on: (message, callback, ...args) => {
@@ -118,6 +119,8 @@ module.exports = function(events) {
                 console.log('AtemHelper: ', message, ...args);
             },
         }
+
+        self.bindClient();
 
         return self;
     }

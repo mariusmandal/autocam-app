@@ -1,67 +1,38 @@
 const Net = require('net');
 const { Atem } = require('atem-connection');
+const AtemSupport = require('./atem-helper');
 const port = 8090;
 
 const Server = new Net.Server();
 const atemClient = new Atem();
+const atemHelper = new AtemSupport(atemClient);
 
+
+function debug(message, ...args) {
+    console.log(message, ...args);
+}
 
 Server.on('connection', (socket) => {
-    console.log('Connection established');
+    debug('Connection established');
     socket.setEncoding("utf8");
-
-    socket.write('Hello');
+    socket.write('ATEM|init');
 
     socket.on('data', (chunk) => {
-        console.log('DATA: ', chunk);
+        debug('DATA: ', chunk);
         let command = chunk.split('|');
-        switch (command[0]) {
-            case 'connect':
-                connect(command[1]);
-                break;
-            case 'cut':
-                cut(command[1]);
-                break;
-            default:
-                console.log('Unsupported action: ', command);
-                break;
-        }
+        atemHelper.exec(command[0], command[1]);
     });
 
     socket.on('end', () => {
-        console.log('client left 😭');
+        debug('client left 😭');
     });
 
     socket.on('error', (err) => {
-        console.warn('ERROR', err);
+        console.warn('Socket error:', err);
     });
 });
 
-atemClient.on('info', console.log);
-atemClient.on('error', console.log);
-atemClient.on('connected', () => {});
-
-
+atemHelper.bind();
 Server.listen(port, () => {
-    console.log('Server listening @ ' + port);
+    debug('Server listening @ ' + port);
 });
-
-
-function cut(input) {
-    atemClient.changeProgramInput(input)
-        .then(() => {
-            console.log('Input should be changed now');
-        })
-        .catch((err) => {
-            console.log('changeProgramInput() error: ', err);
-        });
-}
-
-function connect(ip) {
-    console.log('Connect to ATEM using NRK Sofie', ip);
-    atemClient.connect(ip).then(() => {
-        console.log('Atem connected');
-    }).catch((err) => {
-        console.log('Atem connection error: ', err);
-    });
-}
