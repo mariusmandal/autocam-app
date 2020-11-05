@@ -1,11 +1,8 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="primary" dark dense>
       <div class="d-flex align-center">
-        <v-icon class="shrink mr-2" transition="scale-transition" width="40"
-          >mdi-video</v-icon
-        >
-
+        <v-icon class="shrink mr-2" transition="scale-transition" width="40">mdi-video</v-icon>
         <h2>Autocam</h2>
       </div>
 
@@ -14,9 +11,9 @@
     </v-app-bar>
 
     <v-main>
-      <v-container fluid v-if="arduino_ready">
-        <v-row style="height: calc(100vh - 1rem - 64px;">
-          <v-col cols="10">
+      <v-container fluid v-if="arduino_ready" class="pt-0 mb-0 pb-0" style="height: calc( 100vh - 80px);">
+        <v-row>
+          <v-col cols="8">
             <v-container fluid class="ma-0 pa-0">
               <v-row>
                 <v-col v-for="mic in microphones" :key="mic.id">
@@ -53,7 +50,7 @@
               </v-row>
             </v-container>
           </v-col>
-          <v-col cols="2" class="settings">
+          <v-col cols="4" class="settings pt-0">
             <v-container fluid class="ma-0 pa-0">
               <v-row>
                 <v-col class="microphones">
@@ -68,14 +65,14 @@
                   >
                 </v-col>
               </v-row>
-              <v-row class="mt-4">
+              <v-row class="mt-2">
                 <v-col id="settingsHeader">
                   <b>INNSTILLINGER</b>
                 </v-col>
               </v-row>
 
-              <v-row class="mt-4">
-                <v-col>
+              <v-row class="mt-3">
+                <v-col class="py-0">
                   <SettingSlider
                     name="Gain"
                     setting="arduino.gain"
@@ -85,8 +82,8 @@
                 </v-col>
               </v-row>
 
-              <v-row class="mt-3">
-                <v-col>
+              <v-row class="mt-1">
+                <v-col class="py-0">
                   <SettingSlider
                     name="Threshold"
                     setting="arduino.threshold"
@@ -96,8 +93,8 @@
                 </v-col>
               </v-row>
 
-              <v-row class="mt-3">
-                <v-col>
+              <v-row class="mt-1">
+                <v-col class="py-0">
                   <SettingSlider
                     name="Total-kamera"
                     setting="arduino.total"
@@ -108,15 +105,12 @@
                   />
                 </v-col>
               </v-row>
-
-              <v-spacer />
-
               <v-row>
-                <v-col class="mt-8" align="right" @click="status" style="cursor:pointer;">
+                <v-col class="mt-0" align="right" @click="status" style="cursor:pointer;">
                   <v-icon>mdi-magnify</v-icon>
                   status
                 </v-col>
-                <v-col class="mt-8" align="right" @click="restart" style="cursor:pointer;">
+                <v-col class="mt-0" align="right" @click="restart" style="cursor:pointer;">
                   restart <v-icon>mdi-restart</v-icon>
                 </v-col>
               </v-row>
@@ -131,6 +125,15 @@
     </v-main>
   </v-app>
 </template>
+
+<style>
+body {
+  font-size: 10px;
+  color: #00ff00;
+  overflow: hidden;
+  -webkit-scrollbar: hidden;
+}
+</style>
 
 <style scoped>
 #settingsHeader {

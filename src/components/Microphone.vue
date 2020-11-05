@@ -8,7 +8,7 @@
 
     <v-progress-circular
       :rotate="360"
-      :size="80"
+      :size="55"
       :width="15"
       :value="getLevel()"
       color="teal"
