@@ -20,7 +20,15 @@ Neeesten painless! 😅
 - **Installer prosjektets dependencies:**<br />
 `$ npm install`
 
+## Installere service-fil for atem-helper
+- **Kopier service-fil til rett mappe:**
+`$ sudo cp conf/systemd/atem.service /etc/systemd/system/atem.service`
 
+- **Enable service:**
+`$ systemctl enable atem.service`
+
+- **Restart service (just in case):**
+`$ sudo service atem reload`
 
 ## Hvordan jeg kom hit
 Etter langt og lenge, kom jeg endelig frem til at dette var veien til en fungerende boilerplate. Hvordan mac'en min nå er satt opp aner jeg ikke, da flere forsøk har involvert både `npm install -g` (sorry) og `brew install`. Easy-peasy ifølge mange, men, vel...
