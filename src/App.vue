@@ -128,7 +128,6 @@
 
 <style>
 body {
-  font-size: 14px;
   color: #00ff00;
   overflow: hidden;
   -webkit-scrollbar: hidden;
