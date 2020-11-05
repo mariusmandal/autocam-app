@@ -29,6 +29,7 @@ async function createWindow() {
     })
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
+	mainWindow.setFullScreen(true);
         // Load the url of the dev server if in development mode
         await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools()
@@ -36,8 +37,8 @@ async function createWindow() {
         createProtocol('app')
             // Load the index.html when not in development
         mainWindow.loadURL('app://./index.html');
-        mainWindow.setKiosk(true); //important
-        // Relaunch on crash
+	mainWindow.setKiosk(true);
+	// Relaunch on crash
         mainWindow.webContents.on('crashed', (e) => {
             app.relaunch();
             app.quit()
