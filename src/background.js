@@ -35,7 +35,13 @@ async function createWindow() {
     } else {
         createProtocol('app')
             // Load the index.html when not in development
-        mainWindow.loadURL('app://./index.html')
+        mainWindow.loadURL('app://./index.html');
+        mainWindow.setKiosk(true); //important
+        // Relaunch on crash
+        mainWindow.webContents.on('crashed', (e) => {
+            app.relaunch();
+            app.quit()
+        });
     }
     arduinoComm.registerWindow(mainWindow);
 }
