@@ -133,6 +133,10 @@ body {
   overflow: hidden;
   -webkit-scrollbar: hidden;
 }
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
+}
 </style>
 
 <style scoped>
