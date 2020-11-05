@@ -31,18 +31,22 @@ async function createWindow() {
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode
         await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-        if (!process.env.IS_TEST) mainWindow.webContents.openDevTools()
+        if (isDevelopment) mainWindow.webContents.openDevTools()
     } else {
         createProtocol('app')
             // Load the index.html when not in development
         mainWindow.loadURL('app://./index.html');
-        mainWindow.setKiosk(true); //important
-        // Relaunch on crash
-        mainWindow.webContents.on('crashed', (e) => {
-            app.relaunch();
-            app.quit()
-        });
     }
+    if (isDevelopment) {
+        mainWindow.setFullScreen(true);
+    } else {
+        mainWindow.setKiosk(true); //important
+    }
+    // Relaunch on crash
+    mainWindow.webContents.on('crashed', (e) => {
+        app.relaunch();
+        app.quit()
+    });
     arduinoComm.registerWindow(mainWindow);
 }
 
@@ -65,7 +69,7 @@ app.on('activate', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async() => {
-    if (isDevelopment && !process.env.IS_TEST) {
+    if (isDevelopment) {
         // Install Vue Devtools
         try {
             await installExtension(VUEJS_DEVTOOLS)
