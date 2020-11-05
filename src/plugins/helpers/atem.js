@@ -100,8 +100,8 @@ module.exports = function(events) {
                     }
                 });
 
-                client.on('error', self.log);
                 client.on('close', self.reconnect);
+                client.on('error', self.log);
             },
 
             on: (message, callback, ...args) => {
