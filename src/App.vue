@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark dense>
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-icon class="shrink mr-2" transition="scale-transition" width="40">mdi-video</v-icon>
         <h2>Autocam</h2>
@@ -11,8 +11,8 @@
     </v-app-bar>
 
     <v-main>
-      <v-container fluid v-if="arduino_ready" class="pt-0 mb-0 pb-0" style="height: calc( 100vh - 54px);">
-        <v-row>
+      <v-container fluid v-if="arduino_ready" class="pt-0 mb-0 pb-0">
+        <v-row style="height: calc( 100vh - 64px);">
           <v-col cols="8">
             <v-container fluid class="ma-0 pa-0">
               <v-row>
@@ -128,7 +128,6 @@
 
 <style>
 body {
-  font-size: 14px;
   color: #00ff00;
   overflow: hidden;
   -webkit-scrollbar: hidden;
