@@ -1,0 +1,7 @@
+TODO:
+TEST:
+connection lost (plugga ut usb)
+
+IMPLEMENTER:
+hellothisisme-handshake
+håndter unhandled promise @ port change / connect

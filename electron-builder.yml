@@ -1,0 +1,5 @@
+appId: "no.mariusmandal.autocam-app"
+linux:
+  target:
+    - target: "appimage"
+      arch: ["armv7l"]
