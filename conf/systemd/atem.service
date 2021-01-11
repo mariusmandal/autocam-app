@@ -1,0 +1,15 @@
+[Unit]
+Description = ATEM-connection helper  
+Requires = systemd-user-sessions.service network.target
+After = multi-user.target
+
+[Service]
+User = pi
+Group = pi  
+Type = simple  
+ExecStart = /home/pi/.nvm/versions/node/v12.19.0/bin/node /home/pi/autocam-app/atem.js
+Restart = always 
+RestartSec = 5
+
+[Install]
+WantedBy = multi-user.target
